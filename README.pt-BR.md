@@ -5,7 +5,7 @@
 **Use duas contas do Claude lado a lado no app de desktop do Windows. Sem fazer logout, sem ficar trocando de conta.**
 
 ![Plataforma: Windows](https://img.shields.io/badge/plataforma-Windows-0078D6?logo=windows&logoColor=white)
-![Instalação: Microsoft Store](https://img.shields.io/badge/instala%C3%A7%C3%A3o-Microsoft%20Store-5E5E5E)
+![Instalação: pacote MSIX](https://img.shields.io/badge/instala%C3%A7%C3%A3o-pacote%20MSIX-5E5E5E)
 ![Status: contorno da comunidade](https://img.shields.io/badge/status-contorno%20da%20comunidade-orange)
 ![Não oficial](https://img.shields.io/badge/Anthropic-n%C3%A3o%20oficial-lightgrey)
 ![Licença: MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-green)
@@ -43,7 +43,7 @@ flowchart LR
 
 ## 🙏 Créditos
 
-A ideia original (testada em Mac) foi compartilhada por [igorkas em uma discussão no Reddit](https://www.reddit.com/r/ClaudeAI/comments/1rkdigx/comment/oe0kazz/). Este repositório adapta o método para o Windows com o app instalado pela Microsoft Store.
+A ideia original (testada em Mac) foi compartilhada por [igorkas em uma discussão no Reddit](https://www.reddit.com/r/ClaudeAI/comments/1rkdigx/comment/oe0kazz/). Este repositório adapta o método para o Windows com o app instalado como pacote MSIX.
 
 ## ✅ Requisitos
 
@@ -51,7 +51,7 @@ A ideia original (testada em Mac) foi compartilhada por [igorkas em uma discuss�
 - Os dados de acesso da conta 2.
 - Permissão para criar arquivos na Área de Trabalho e em Documentos.
 
-Este guia cobre o app instalado pela **Microsoft Store**. Para saber se é o seu caso, siga o passo 1: se o caminho começar com `C:\Program Files\WindowsApps\`, é a versão da Store.
+Este guia cobre o app do Windows instalado como **pacote MSIX**, que é o que você recebe pelo download oficial em claude.com/download e, até onde sabemos, também pela Microsoft Store. Para saber se vale para você, siga o passo 1: se o caminho começar com `C:\Program Files\WindowsApps\`, este guia é para você.
 
 ## 🛠️ Passo a passo
 
@@ -103,7 +103,7 @@ O `.bat` precisa continuar na pasta onde está, porque o atalho depende dele.
 
 ## 🧪 Experimental: script que acha o caminho sozinho
 
-O maior problema do método é que o número da versão faz parte do caminho e muda quando a Microsoft Store atualiza o app. O arquivo [`scripts/launch-claude-work.ps1`](scripts/launch-claude-work.ps1) tenta descobrir o local de instalação automaticamente.
+O maior problema do método é que o número da versão faz parte do caminho e muda a cada atualização do app. O arquivo [`scripts/launch-claude-work.ps1`](scripts/launch-claude-work.ps1) tenta descobrir o local de instalação automaticamente.
 
 > [!NOTE]
 > Este script **não foi testado em todos os ambientes**. Teste antes de depender dele. Se não funcionar na sua máquina, use o `.bat` normal.
@@ -168,7 +168,7 @@ Apague o atalho **Claude Work**, o arquivo `Claude Work.bat` e a pasta `Claude-W
 
 ## 🤝 Contribuindo
 
-Testou em outra versão do Windows ou em outra forma de instalação (como um instalador `.exe` fora da Store)? Encontrou um ajuste? Abra uma *issue* ou um *pull request*.
+Testou em outra versão do Windows, em uma máquina ARM64 ou em uma instalação antiga (standalone)? Encontrou um ajuste? Abra uma *issue* ou um *pull request*.
 
 ## 📄 Licença
 

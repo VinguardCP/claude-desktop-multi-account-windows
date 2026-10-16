@@ -5,7 +5,7 @@
 **Run two Claude accounts side by side on the Windows desktop app. No logging out, no switching back and forth.**
 
 ![Platform: Windows](https://img.shields.io/badge/platform-Windows-0078D6?logo=windows&logoColor=white)
-![Install: Microsoft Store](https://img.shields.io/badge/install-Microsoft%20Store-5E5E5E)
+![Install: MSIX package](https://img.shields.io/badge/install-MSIX%20package-5E5E5E)
 ![Status: community workaround](https://img.shields.io/badge/status-community%20workaround-orange)
 ![Unofficial](https://img.shields.io/badge/Anthropic-unofficial-lightgrey)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
@@ -43,7 +43,7 @@ flowchart LR
 
 ## 🙏 Credits
 
-The original idea (tested on a Mac) was shared by [igorkas in a Reddit discussion](https://www.reddit.com/r/ClaudeAI/comments/1rkdigx/comment/oe0kazz/). This repository adapts the method to Windows with the Microsoft Store version of the app.
+The original idea (tested on a Mac) was shared by [igorkas in a Reddit discussion](https://www.reddit.com/r/ClaudeAI/comments/1rkdigx/comment/oe0kazz/). This repository adapts the method to Windows with the MSIX version of the app.
 
 ## ✅ Requirements
 
@@ -51,7 +51,7 @@ The original idea (tested on a Mac) was shared by [igorkas in a Reddit discussio
 - The sign-in details for account 2.
 - Permission to create files on your Desktop and in Documents.
 
-This guide covers the app installed from the **Microsoft Store**. To check whether that's your case, follow step 1: if the path starts with `C:\Program Files\WindowsApps\`, it is the Store version.
+This guide covers the Windows app installed as an **MSIX package**, which is what you get from the official download at claude.com/download and, as far as we know, from the Microsoft Store as well. To check whether it applies to you, follow step 1: if the path starts with `C:\Program Files\WindowsApps\`, this guide is for you.
 
 ## 🛠️ Step by step
 
@@ -103,7 +103,7 @@ The `.bat` has to stay where it is, because the shortcut depends on it.
 
 ## 🧪 Experimental: auto-detect script
 
-The biggest weakness of this method is that the version number is part of the path, so it changes when the Microsoft Store updates the app. [`scripts/launch-claude-work.ps1`](scripts/launch-claude-work.ps1) tries to find the install location automatically.
+The biggest weakness of this method is that the version number is part of the path, so it changes whenever the app updates. [`scripts/launch-claude-work.ps1`](scripts/launch-claude-work.ps1) tries to find the install location automatically.
 
 > [!NOTE]
 > This script has **not been tested on every setup**. Try it before relying on it. If it doesn't work on your machine, use the regular `.bat`.
@@ -168,7 +168,7 @@ Delete the **Claude Work** shortcut, the `Claude Work.bat` file and the `Claude-
 
 ## 🤝 Contributing
 
-Tested on another Windows version or another install method (such as a standalone `.exe` outside the Store)? Found a fix? Open an issue or a pull request.
+Tested on another Windows version, on an ARM64 machine, or on an older standalone install? Found a fix? Open an issue or a pull request.
 
 ## 📄 License
 

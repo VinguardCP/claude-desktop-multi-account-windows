@@ -1,10 +1,10 @@
 # EXPERIMENTAL - not tested on every setup.
-# Finds where Claude Desktop (Microsoft Store version) is installed and launches a second
+# Finds where Claude Desktop (MSIX package) is installed and launches a second
 # instance that uses the "Claude-Work" data folder inside the user profile.
 
 $dataFolder = Join-Path $env:USERPROFILE "Claude-Work"
 
-# Look for the package installed from the Microsoft Store
+# Look for the installed MSIX package
 $package = Get-AppxPackage -Name "Claude" -ErrorAction SilentlyContinue | Select-Object -First 1
 if (-not $package) {
     $package = Get-AppxPackage -ErrorAction SilentlyContinue |
@@ -13,7 +13,7 @@ if (-not $package) {
 }
 
 if (-not $package) {
-    Write-Host "Could not find Claude installed from the Microsoft Store."
+    Write-Host "Could not find Claude installed as an MSIX package."
     Write-Host "Use the manual method with the .bat file instead (see the README)."
     exit 1
 }
