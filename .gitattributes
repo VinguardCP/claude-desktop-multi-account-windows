@@ -1,0 +1,2 @@
+# Keep Windows batch files with Windows line endings
+*.bat text eol=crlf
