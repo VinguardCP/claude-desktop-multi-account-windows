@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.2.2 - 2026-11-24
+
+- Better clean-up of version 1 leftovers: besides shortcuts to the `.bat`, it now also finds a
+  `.bat` saved straight on the Desktop and dead "Claude..." shortcuts whose `.bat` is gone, and
+  offers to delete them.
+- Tested the upgrade of a version 1 user on a clean profile: old `.bat` and broken shortcut
+  removed, the `Claude-Work` folder turned into the "Work" account, new shortcuts created.
+
 ## 2.2.1 - 2026-11-24
 
 - Fresh-install fix: when Windows returns an empty Desktop or Start menu path (redirected or

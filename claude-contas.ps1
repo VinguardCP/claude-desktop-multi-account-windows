@@ -58,7 +58,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$ToolVersion = '2.2.1'
+$ToolVersion = '2.2.2'
 $REPO     = 'VinguardCP/claude-desktop-multi-account-windows'
 $REPO_RAW = "https://raw.githubusercontent.com/$REPO/main"
 
@@ -506,8 +506,14 @@ function Get-LegacyShortcuts {
                 $t = $ws.CreateShortcut($_.FullName).TargetPath
                 if ($t -like '*.bat' -and (Test-Path $t) -and ((Get-Content $t -Raw) -match 'user-data-dir')) { $found += $_.FullName }
                 elseif ($t -like '*\WindowsApps\Claude_*\claude.exe') { $found += $_.FullName }
+                # v1 shortcut whose .bat was deleted or moved: a dead "Claude ..." icon.
+                elseif ($t -like '*.bat' -and -not (Test-Path $t) -and $_.Name -like 'Claude*') { $found += $_.FullName }
             } catch { }
         }
+    }
+    # v1 .bat saved straight on the Desktop (its version path dies with every Claude update).
+    Get-ChildItem (Get-SpecialFolder 'Desktop') -Filter '*.bat' -ErrorAction SilentlyContinue | ForEach-Object {
+        try { if ((Get-Content $_.FullName -Raw) -match 'user-data-dir' -and (Get-Content $_.FullName -Raw) -match 'claude\.exe') { $found += $_.FullName } } catch { }
     }
     return $found
 }

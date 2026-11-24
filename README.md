@@ -5,7 +5,7 @@
 **One "Claude app" per account, each with its own Desktop shortcut and icon, all open at the same time. No logging out, no switching, and no breakage when Claude updates.**
 
 ![Platform: Windows](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-0078D6?logo=windows&logoColor=white)
-![Version](https://img.shields.io/badge/version-2.2.1-blue)
+![Version](https://img.shields.io/badge/version-2.2.2-blue)
 ![Tested with 4 accounts](https://img.shields.io/badge/tested-4%20accounts%20open-success)
 ![Unofficial](https://img.shields.io/badge/Anthropic-unofficial-lightgrey)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
