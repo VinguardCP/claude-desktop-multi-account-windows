@@ -44,7 +44,7 @@
 
     Write-Host ''
     Write-Host (T 'Pronto! Como usar:' 'Done! How to use it:') -ForegroundColor Green
-    Write-Host (T '  - Conta principal: o Claude normal, como sempre.' '  - Main account: the regular Claude, as always.')
-    Write-Host (T '  - Outras contas: atalhos "Claude - <nome>" na \u00c1rea de Trabalho e no menu Iniciar.' '  - Other accounts: "Claude - <name>" shortcuts on the Desktop and Start menu.')
+    Write-Host (T '  - Cada conta tem um atalho "Claude - <nome>" na \u00c1rea de Trabalho e no menu Iniciar (a principal tamb\u00e9m).' '  - Each account has a "Claude - <name>" shortcut on the Desktop and Start menu (the main one too).')
+    Write-Host (T '  - Todas podem ficar abertas ao mesmo tempo.' '  - All of them can stay open at the same time.')
     Write-Host (T '  - Para gerenciar (nova conta, login, testar, consertar): menu Iniciar > "Claude Contas (menu)".' '  - To manage (new account, sign in, test, repair): Start menu > "Claude Contas (menu)".')
 }

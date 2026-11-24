@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.2.0 - 2026-11-24
+
+- Fix: the English text never showed. The `$pt` parameter of the translation helper hid the
+  global `$PT` flag (PowerShell names are case-insensitive), so Portuguese always won.
+- `-Renomear <account> -Para <new name>` and `-Idioma pt|en` (or `CLAUDE_CONTAS_IDIOMA`).
+- `PROMPT.md` now works with any AI: Prompt A for AIs that run commands (Claude Code, Codex,
+  Cursor, Gemini CLI, Copilot agent) and Prompt B for chat-only AIs, which build one command
+  for the user to paste.
+- README rewritten: what Claude Contas is, everything it does, four ways to install, menu and
+  command reference, and what was tested.
+- Installer closing message mentions the main account's shortcut.
+- Tested: Google sign-in link fired by Windows is caught and handed to the right account;
+  self-update from an old version; tray notification; one-line installer end to end; install
+  from a downloaded ZIP; menu in both languages; the /claude-contas skill in a Claude Code session.
+
 ## 2.1.2 - 2026-11-24
 
 - Claude's own console output (Node `MaxListenersExceededWarning`, Electron deprecation
