@@ -23,6 +23,8 @@
     claude-contas.ps1 -Atualizar                       # update this tool from GitHub
     claude-contas.ps1 -Agendar "12:00,18:30"           # automatic maintenance at logon + these times
     claude-contas.ps1 -Desagendar                      # remove the scheduled task
+    claude-contas.ps1 -Renomear Work -Para Trabalho    # rename an account (sign-in is kept)
+    claude-contas.ps1 -Idioma en                       # force English (or pt); also CLAUDE_CONTAS_IDIOMA
     claude-contas.ps1 -Manutencao                      # what the scheduled task runs
 #>
 [CmdletBinding()]
@@ -31,6 +33,8 @@ param(
     [string]$Entrar,
     [string]$Adicionar,
     [string]$Remover,
+    [string]$Renomear,
+    [string]$Para,
     [string]$Pasta,
     [switch]$Diagnostico,
     [switch]$Testar,
@@ -49,11 +53,12 @@ param(
     [switch]$SemEntrar,
     [switch]$Sim,
     [switch]$Silencioso,
+    [ValidateSet('', 'pt', 'en')][string]$Idioma = '',
     [switch]$Versao
 )
 
 $ErrorActionPreference = 'Stop'
-$ToolVersion = '2.1.2'
+$ToolVersion = '2.2.0'
 $REPO     = 'VinguardCP/claude-desktop-multi-account-windows'
 $REPO_RAW = "https://raw.githubusercontent.com/$REPO/main"
 
@@ -73,8 +78,10 @@ $CorNumero   = @{ 1 = '#D97757'; 2 = '#2F6FED'; 3 = '#1E9E5A'; 4 = '#8E44CF'; 5 
 $NoQuestions = [bool]($Sim -or $Silencioso)
 
 # ---------------------------------------------------------------- text / log
-$PT = ((Get-UICulture).Name -like 'pt*') -or ((Get-Culture).Name -like 'pt*')
-function T([string]$pt, [string]$en) { if ($PT) { $pt } else { $en } }
+# Language: -Idioma, then CLAUDE_CONTAS_IDIOMA, then the Windows language.
+$lang = if ($Idioma) { $Idioma } elseif ($env:CLAUDE_CONTAS_IDIOMA) { $env:CLAUDE_CONTAS_IDIOMA } else { '' }
+$UsePT = if ($lang) { $lang -like 'pt*' } else { ((Get-UICulture).Name -like 'pt*') -or ((Get-Culture).Name -like 'pt*') }
+function T([string]$textPt, [string]$textEn) { if ($UsePT) { $textPt } else { $textEn } }
 
 function Write-Log([string]$msg) {
     try {
@@ -1027,7 +1034,7 @@ function Invoke-Instalar {
         Say ''
         $q = Ask (T 'Quantas contas EXTRAS além da principal? (1 a 8)' 'How many EXTRA accounts besides the main one? (1 to 8)') '1'
         $qtd = 1; [void][int]::TryParse($q, [ref]$qtd); $qtd = [Math]::Max(1, [Math]::Min(8, $qtd))
-        $sug = if ($PT) { @('Trabalho', 'Pessoal', 'Cliente', 'Conta 4', 'Conta 5', 'Conta 6', 'Conta 7', 'Conta 8') } else { @('Work', 'Personal', 'Client', 'Account 4', 'Account 5', 'Account 6', 'Account 7', 'Account 8') }
+        $sug = if ($UsePT) { @('Trabalho', 'Pessoal', 'Cliente', 'Conta 4', 'Conta 5', 'Conta 6', 'Conta 7', 'Conta 8') } else { @('Work', 'Personal', 'Client', 'Account 4', 'Account 5', 'Account 6', 'Account 7', 'Account 8') }
         for ($i = 0; $i -lt $qtd; $i++) {
             $n = Ask ((T 'Nome da conta extra ' 'Name of extra account ') + ($i + 1)) $sug[$i]
             [void](Invoke-Adicionar $n $null)
@@ -1175,6 +1182,7 @@ try {
     if ($Entrar)      { Invoke-Entrar $Entrar; return }
     if ($Adicionar)   { [void](Invoke-Adicionar $Adicionar $Pasta); return }
     if ($Remover)     { Invoke-Remover $Remover; return }
+    if ($Renomear)    { if (-not $Para) { throw (T 'Use -Renomear <nome atual> -Para <novo nome>.' 'Use -Renomear <current name> -Para <new name>.') }; Invoke-Renomear $Renomear $Para; return }
     if ($Diagnostico) { $n = Invoke-Diagnostico; exit ([Math]::Min($n, 1)) }
     if ($Testar)      { if (Invoke-Testar) { exit 0 } else { exit 1 } }
     if ($Reparar)     { Invoke-Reparar; return }
