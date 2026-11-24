@@ -53,7 +53,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$ToolVersion = '2.1.0'
+$ToolVersion = '2.1.1'
 $REPO     = 'VinguardCP/claude-desktop-multi-account-windows'
 $REPO_RAW = "https://raw.githubusercontent.com/$REPO/main"
 
@@ -283,7 +283,8 @@ function Get-ProfileLog([string]$folder) {
 
 function Get-ProfileState([string]$folder) {
     $st = [pscustomobject]@{ Exists = (Test-Path $folder); LastStart = $null; Chosen = $null
-                             LoggedIn = $null; AccountId = $null; LastSeen = $null }
+                             LoggedIn = $null; AccountId = $null; LastSeen = $null
+                             CookieAtStart = $null; SignedInAtExit = $null }
     $log = Get-ProfileLog $folder
     if (-not $log) { return $st }
     $st.LastSeen = (Get-Item $log).LastWriteTime
@@ -297,6 +298,8 @@ function Get-ProfileState([string]$folder) {
         if (-not $st.AccountId -and $ln -match 'accountId[=:] ?''?([0-9a-f-]{36})') { $st.AccountId = $Matches[1] }
         if ($null -eq $st.Chosen -and $ln -match '\[user-data-move\] (\w+)') { $st.Chosen = $Matches[1] }
         if (-not $st.LastStart -and $ln -match '^(\S+ \S+) \[info\] Starting app') { $st.LastStart = $Matches[1] }
+        if ($null -eq $st.CookieAtStart -and $ln -match 'sign_in_cookie_present: (true|false)') { $st.CookieAtStart = ($Matches[1] -eq 'true') }
+        if ($null -eq $st.SignedInAtExit -and $ln -match 'signed_in_at_last_exit: (true|false)') { $st.SignedInAtExit = ($Matches[1] -eq 'true') }
         if ($st.LastStart -and $null -ne $st.LoggedIn -and $st.AccountId -and $st.Chosen) { break }
     }
     return $st
@@ -768,12 +771,19 @@ it to the '$nome' window.
     }
     Write-Host ''
     if ($done) {
+        # Chromium writes cookies to disk in batches about every 30 s. Killing Claude
+        # (Task Manager, taskkill /F) before that loses the fresh sign-in cookie, and the
+        # account asks to sign in again on the next launch. Wait for the write.
+        Write-Host ''
+        Write-Host (T 'Login feito. Aguarde: o Claude grava o login no disco a cada ~30 segundos. Não feche nada agora.' 'Signed in. Please wait: Claude writes the sign-in to disk about every 30 seconds. Do not close anything now.') -ForegroundColor Cyan
+        for ($s = 45; $s -gt 0; $s -= 5) { Write-Host ("  ... {0} s" -f $s); Start-Sleep -Seconds 5 }
         $st = Get-ProfileState $conta.pasta
         $def = Get-DefaultAccountId
         Write-Host ('  [OK]   ' + (T "Conta '$nome' logada." "'$nome' is signed in.")) -ForegroundColor Green
         if ($st.AccountId -and $def -and $st.AccountId -eq $def) {
             Write-Host ('  [!]    ' + (T "Atenção: '$nome' entrou na MESMA conta do Claude principal. Use outro e-mail para esta conta." "Warning: '$nome' signed in to the SAME account as the main Claude. Use a different email for it.")) -ForegroundColor Yellow
         }
+        Write-Host ('  [OK]   ' + (T 'Login gravado. Para fechar uma conta, use o ícone do Claude perto do relógio > Sair, em vez do Gerenciador de Tarefas.' 'Sign-in saved. To close an account, use the Claude icon near the clock > Quit instead of Task Manager.')) -ForegroundColor Green
         Write-Log "entrar '$nome': sucesso (links encaminhados: $forwarded)"
     } else {
         Write-Host (T 'Não vi o login concluir. Se a janela já mostra suas conversas, está tudo certo; senão, rode de novo.' 'Did not see the sign-in finish. If the window already shows your chats, all good; otherwise run it again.') -ForegroundColor Yellow
@@ -887,7 +897,12 @@ function Invoke-Diagnostico {
         if ($st.LastStart) { Ok ((T 'última abertura: ' 'last opened: ') + $st.LastStart + "  ($($st.Chosen))") } else { Warn (T 'nunca aberta' 'never opened') }
         if ($st.Chosen -and $st.Chosen -ne 'stay_chosen_folder') { Bad ((T 'o app NÃO respeitou a pasta escolhida: ' 'the app did NOT keep the chosen folder: ') + $st.Chosen); $problems++ }
         if ($st.LoggedIn -eq $true) { Ok (T 'logada' 'signed in') }
-        elseif ($st.LoggedIn -eq $false) { Warn (T 'deslogada - use Entrar' 'signed out - use Sign in'); $problems++ }
+        elseif ($st.LoggedIn -eq $false) {
+            Warn (T 'deslogada - use Entrar' 'signed out - use Sign in'); $problems++
+            if ($st.SignedInAtExit -eq $true -and $st.CookieAtStart -eq $false) {
+                Warn (T 'o login foi perdido porque o Claude foi encerrado à força (Gerenciador de Tarefas) segundos depois de entrar, antes de gravar o login no disco. Entre de novo e espere 1 minuto antes de fechar; para fechar, use o ícone perto do relógio > Sair.' 'the sign-in was lost because Claude was force-closed (Task Manager) seconds after signing in, before it wrote the sign-in to disk. Sign in again and wait 1 minute before closing; to close, use the icon near the clock > Quit.')
+            }
+        }
         if ($st.AccountId) {
             if ($ids.ContainsKey($st.AccountId)) { Warn ((T 'é a MESMA conta que ' 'it is the SAME account as ') + "'$($ids[$st.AccountId])'"); $problems++ }
             else { $ids[$st.AccountId] = $c.nome }

@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.1.1 - 2026-11-24
+
+- Sign-in helper waits 45 s after the sign-in so Claude writes the session cookie to disk.
+  Chromium persists cookies about every 30 s; force-closing Claude (Task Manager) right after
+  signing in lost the session and the account asked to sign in again on the next launch.
+- Diagnostics recognises that case (`signed_in_at_last_exit: true` with no sign-in cookie at
+  start) and explains it.
+
 ## 2.1.0 - 2026-11-24
 
 - Scheduled automatic update (`-Agendar "12:00,18:30"`, menu → H): runs hidden at Windows

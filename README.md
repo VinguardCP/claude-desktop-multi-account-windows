@@ -5,7 +5,7 @@
 **Use several Claude accounts side by side in the Windows desktop app. No logging out, no switching, and no breakage when the app updates.**
 
 ![Platform: Windows](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-0078D6?logo=windows&logoColor=white)
-![Version](https://img.shields.io/badge/version-2.1.0-blue)
+![Version](https://img.shields.io/badge/version-2.1.1-blue)
 ![Tested with 4 accounts](https://img.shields.io/badge/tested-4%20accounts%20open-success)
 ![Unofficial](https://img.shields.io/badge/Anthropic-unofficial-lightgrey)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
@@ -149,6 +149,7 @@ The installer offers the skill; you can also install it later from the menu → 
 
 | Symptom | What to do |
 | --- | --- |
+| I signed in, closed it, and it asked to sign in again | Claude was force-closed (Task Manager) seconds after signing in. It only writes the sign-in to disk about every 30 s. Sign in again and wait 1 minute; to close, use the Claude icon near the clock → **Quit**. The helper (**E**) already waits for this |
 | The extra account asks to sign in | Menu → **E**. Sessions expire from time to time |
 | I signed in and landed in the main account | Menu → **E**. The helper prevents this |
 | Diagnostics says "SAME account" | Menu → **E** and sign in with the other email |

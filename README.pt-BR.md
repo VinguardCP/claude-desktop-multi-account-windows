@@ -5,7 +5,7 @@
 **Use várias contas do Claude lado a lado no app de desktop do Windows. Sem logout, sem trocar de conta, e sem quebrar quando o app atualiza.**
 
 ![Plataforma: Windows](https://img.shields.io/badge/plataforma-Windows%2010%20%7C%2011-0078D6?logo=windows&logoColor=white)
-![Versão](https://img.shields.io/badge/vers%C3%A3o-2.1.0-blue)
+![Versão](https://img.shields.io/badge/vers%C3%A3o-2.1.1-blue)
 ![Testado com 4 contas](https://img.shields.io/badge/testado-4%20contas%20abertas-success)
 ![Não oficial](https://img.shields.io/badge/Anthropic-n%C3%A3o%20oficial-lightgrey)
 ![Licença: MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-green)
@@ -149,6 +149,7 @@ O instalador oferece a skill, e também dá para instalar depois pelo menu → *
 
 | Sintoma | O que fazer |
 | --- | --- |
+| Fiz login, fechei e ao reabrir pediu login de novo | O Claude foi fechado à força (Gerenciador de Tarefas) segundos depois do login. Ele só grava o login no disco a cada ~30 s. Entre de novo e espere 1 minuto; para fechar, use o ícone do Claude perto do relógio → **Sair**. O assistente (**E**) já espera esse tempo |
 | A conta extra abre pedindo login | Menu → **E** (Entrar). A sessão expira de tempos em tempos |
 | Fiz login e caiu na conta principal | Menu → **E**. O assistente evita isso |
 | O diagnóstico diz "MESMA conta" | Menu → **E** e entre com o outro e-mail |
