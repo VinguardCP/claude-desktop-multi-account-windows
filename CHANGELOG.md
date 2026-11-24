@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.1.2 - 2026-11-24
+
+- Claude's own console output (Node `MaxListenersExceededWarning`, Electron deprecation
+  notices) no longer floods the menu window: it goes to `%LOCALAPPDATA%\ClaudeContas\saida`,
+  cleaned up automatically. Those messages come from Claude Desktop itself and are harmless.
+- Verified: after the 45 s wait, a sign-in survives a forced close (Task Manager) and the
+  account reopens signed in.
+
 ## 2.1.1 - 2026-11-24
 
 - Sign-in helper waits 45 s after the sign-in so Claude writes the session cookie to disk.

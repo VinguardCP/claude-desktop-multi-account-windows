@@ -53,7 +53,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$ToolVersion = '2.1.1'
+$ToolVersion = '2.1.2'
 $REPO     = 'VinguardCP/claude-desktop-multi-account-windows'
 $REPO_RAW = "https://raw.githubusercontent.com/$REPO/main"
 
@@ -263,8 +263,17 @@ function Start-ClaudeWith([string]$folder, [string]$url, [string[]]$extra = @())
     if ($folder) { $argList += ('--user-data-dir="{0}"' -f $folder) }
     $argList += $extra
     if ($url)    { $argList += '--'; $argList += ('"{0}"' -f $url) }
-    if ($argList.Count -gt 0) { Start-Process -FilePath $l.Path -ArgumentList $argList }
-    else                      { Start-Process -FilePath $l.Path }
+    # Claude writes Node/Chromium warnings to the console it inherits. Send them to
+    # files so they do not flood the menu window. Old files are removed when free.
+    $outDir = Join-Path $Base 'saida'
+    New-Item -ItemType Directory -Path $outDir -Force | Out-Null
+    Get-ChildItem $outDir -Filter '*.log' -ErrorAction SilentlyContinue |
+        Where-Object { $_.LastWriteTime -lt (Get-Date).AddMinutes(-10) } |
+        ForEach-Object { Remove-Item $_.FullName -Force -ErrorAction SilentlyContinue }
+    $tag = (Get-Date -Format 'yyyyMMdd-HHmmss') + '-' + (Get-Random -Maximum 99999)
+    $redir = @{ RedirectStandardOutput = (Join-Path $outDir "$tag-out.log"); RedirectStandardError = (Join-Path $outDir "$tag-err.log") }
+    if ($argList.Count -gt 0) { Start-Process -FilePath $l.Path -ArgumentList $argList @redir }
+    else                      { Start-Process -FilePath $l.Path @redir }
     Write-Log ("start kind={0} folder={1} url={2}" -f $l.Kind, $folder, [bool]$url)
 }
 

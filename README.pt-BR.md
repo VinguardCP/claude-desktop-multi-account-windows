@@ -5,7 +5,7 @@
 **Use várias contas do Claude lado a lado no app de desktop do Windows. Sem logout, sem trocar de conta, e sem quebrar quando o app atualiza.**
 
 ![Plataforma: Windows](https://img.shields.io/badge/plataforma-Windows%2010%20%7C%2011-0078D6?logo=windows&logoColor=white)
-![Versão](https://img.shields.io/badge/vers%C3%A3o-2.1.1-blue)
+![Versão](https://img.shields.io/badge/vers%C3%A3o-2.1.2-blue)
 ![Testado com 4 contas](https://img.shields.io/badge/testado-4%20contas%20abertas-success)
 ![Não oficial](https://img.shields.io/badge/Anthropic-n%C3%A3o%20oficial-lightgrey)
 ![Licença: MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-green)
