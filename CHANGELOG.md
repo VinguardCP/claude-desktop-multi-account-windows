@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.2.1 - 2026-11-24
+
+- Fresh-install fix: when Windows returns an empty Desktop or Start menu path (redirected or
+  broken profile folders), the tool falls back to the standard locations instead of failing.
+- The installer no longer says "Done" when the setup failed: it tells the user to run the
+  command again and where the log is.
+- Tested a first-time install on a clean profile through the one-line command: two accounts
+  created with shortcuts, icons and the closing summary.
+
 ## 2.2.0 - 2026-11-24
 
 - Fix: the English text never showed. The `$pt` parameter of the translation helper hid the

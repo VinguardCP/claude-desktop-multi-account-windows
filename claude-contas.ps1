@@ -58,7 +58,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$ToolVersion = '2.2.0'
+$ToolVersion = '2.2.1'
 $REPO     = 'VinguardCP/claude-desktop-multi-account-windows'
 $REPO_RAW = "https://raw.githubusercontent.com/$REPO/main"
 
@@ -429,10 +429,22 @@ function Get-AccountIcon($cfg, [string]$nome, [int]$numero, [string]$cor) {
 }
 
 # ---------------------------------------------------------------- shortcuts
+# Desktop / Start menu folders. Windows can return an empty path (redirected or
+# broken profile folders); fall back to the standard locations then.
+function Get-SpecialFolder([string]$which) {
+    $p = [Environment]::GetFolderPath($which)
+    if ($p) { return $p }
+    switch ($which) {
+        'Desktop'  { foreach ($c in @((Join-Path $env:USERPROFILE 'OneDrive\Desktop'), (Join-Path $env:USERPROFILE 'Desktop'))) { if (Test-Path $c) { return $c } }; return (Join-Path $env:USERPROFILE 'Desktop') }
+        'Programs' { return (Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs') }
+    }
+    return $env:USERPROFILE
+}
+
 function Get-ShortcutPaths([string]$nome) {
     $file = "Claude - $nome.lnk"
-    $desktop = [Environment]::GetFolderPath('Desktop')
-    $start   = Join-Path ([Environment]::GetFolderPath('Programs')) 'Claude Contas'
+    $desktop = (Get-SpecialFolder 'Desktop')
+    $start   = Join-Path ((Get-SpecialFolder 'Programs')) 'Claude Contas'
     return @((Join-Path $desktop $file), (Join-Path $start $file))
 }
 
@@ -474,7 +486,7 @@ function Set-PrincipalShortcuts($cfg) {
 }
 
 function Set-MenuShortcut {
-    $lnk = Join-Path (Join-Path ([Environment]::GetFolderPath('Programs')) 'Claude Contas') 'Claude Contas (menu).lnk'
+    $lnk = Join-Path (Join-Path ((Get-SpecialFolder 'Programs')) 'Claude Contas') 'Claude Contas (menu).lnk'
     $ico = New-BadgeIcon 'menu' '#555555' '+'
     New-Shortcut $lnk '' $ico (T 'Gerenciar contas do Claude' 'Manage Claude accounts') -Visible
 }
@@ -488,7 +500,7 @@ function Remove-AccountShortcuts([string]$nome) {
 function Get-LegacyShortcuts {
     $found = @()
     $ws = New-Object -ComObject WScript.Shell
-    foreach ($dir in @([Environment]::GetFolderPath('Desktop'), [Environment]::GetFolderPath('Programs'))) {
+    foreach ($dir in @((Get-SpecialFolder 'Desktop'), (Get-SpecialFolder 'Programs'))) {
         Get-ChildItem $dir -Filter '*.lnk' -Recurse -ErrorAction SilentlyContinue | ForEach-Object {
             try {
                 $t = $ws.CreateShortcut($_.FullName).TargetPath

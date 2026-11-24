@@ -41,6 +41,12 @@
     Unblock-File $dest -ErrorAction SilentlyContinue
 
     & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $dest -Instalar
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host ''
+        Write-Host (T 'A instalação não terminou. Rode o mesmo comando de novo. Se o erro continuar, copie a mensagem acima e abra uma issue em github.com/VinguardCP/claude-desktop-multi-account-windows/issues' 'The installation did not finish. Run the same command again. If the error persists, copy the message above and open an issue at github.com/VinguardCP/claude-desktop-multi-account-windows/issues') -ForegroundColor Yellow
+        Write-Host ((T 'Detalhes no log: ' 'Details in the log: ') + (Join-Path $base 'claude-contas.log'))
+        return
+    }
 
     Write-Host ''
     Write-Host (T 'Pronto! Como usar:' 'Done! How to use it:') -ForegroundColor Green
