@@ -2,11 +2,11 @@
 
 # 👥 Claude Desktop Multi-Account for Windows
 
-**Run two Claude accounts side by side on the Windows desktop app. No logging out, no switching back and forth.**
+**Use several Claude accounts side by side in the Windows desktop app. No logging out, no switching, and no breakage when the app updates.**
 
-![Platform: Windows](https://img.shields.io/badge/platform-Windows-0078D6?logo=windows&logoColor=white)
-![Install: MSIX package](https://img.shields.io/badge/install-MSIX%20package-5E5E5E)
-![Status: community workaround](https://img.shields.io/badge/status-community%20workaround-orange)
+![Platform: Windows](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-0078D6?logo=windows&logoColor=white)
+![Version](https://img.shields.io/badge/version-2.1.0-blue)
+![Tested with 4 accounts](https://img.shields.io/badge/tested-4%20accounts%20open-success)
 ![Unofficial](https://img.shields.io/badge/Anthropic-unofficial-lightgrey)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
 
@@ -15,161 +15,170 @@
 </div>
 
 > [!WARNING]
-> This is a **community workaround**, not an official feature, and it is **not affiliated with Anthropic**. An app update may require adjustments. "Claude" is a trademark of Anthropic and is used here only to describe which app this works with.
+> This is a **community workaround**, not an official feature, and it is **not affiliated with Anthropic**. "Claude" is a trademark of Anthropic and is mentioned only to say which app this works with.
 
-## ⚡ Quick start
+## ⚡ Install
 
-1. Find where `claude.exe` lives (Task Manager → *Open file location*).
-2. Quit Claude completely, then test the command below in PowerShell and log in with your **second** account.
-3. Save the command as a `.bat` file and make a desktop shortcut called **Claude Work**.
-4. Use the normal Claude for account 1 and **Claude Work** for account 2. Both can stay open together.
+First: have Claude Desktop installed ([claude.com/download](https://claude.com/download)) and signed in to your main account.
 
-Full walkthrough in the **Step by step** section below.
+### Option 1: one command (1 minute)
+
+Open **PowerShell** (Windows key, type `powershell`, Enter; no admin needed), paste and press Enter:
+
+```powershell
+irm https://raw.githubusercontent.com/VinguardCP/claude-desktop-multi-account-windows/main/install.ps1 | iex
+```
+
+The installer asks:
+
+1. A name for the main account (default: `Principal`).
+2. How many extra accounts you want and the name of each.
+3. The icon style.
+4. Whether to schedule the automatic update, and at which times (e.g. lunch).
+5. Whether to install the Claude Code skill (only asked if you use Claude Code).
+6. Whether to sign in to each account now, with the sign-in helper.
+
+### Option 2: let Claude Code do everything
+
+Open [PROMPT.md](PROMPT.md), copy the prompt and paste it into Claude Code. It reads the script, asks the same questions in the chat, installs, tests and walks you through each sign-in.
+
+### Result
+
+The Desktop and Start menu get a shortcut for **each** account, the main one included:
+
+| Shortcut | Opens |
+| --- | --- |
+| **Claude - Principal** | The account you already used |
+| **Claude - Work**, **Claude - Client**... | Each extra account, in its own window |
+
+All of them can stay open at once. Clicking the shortcut of an account that is already open brings its window to the front.
+
+## 🎨 Icons
+
+Two styles, switchable at any time (menu → **I**):
+
+- **logo** (default): the Claude logo installed on your computer, with a colored badge and the account initial. The icon is built on your machine from the app itself; this repository does not distribute the logo.
+- **numerado** (numbered): the project's own icons, one number and color per account. They live in [`icons/`](icons) and are built by [`tools/gerar-icones.ps1`](tools/gerar-icones.ps1).
+
+![Numbered icons](icons/preview.png)
+
+## 🔄 What happens when Claude updates?
+
+Nothing you need to do:
+
+- **Shortcuts do not break.** They start Claude through an official app alias (`claude-desktop.exe`) that does not change between versions. Version 1 used the app's folder path, which changes on every update, and broke each time.
+- **The tool updates itself** whenever a fix is published here.
+- **The scheduled automatic update** (optional) runs hidden at sign-in and at the times you choose. It:
+  - updates the tool;
+  - rebuilds deleted shortcuts;
+  - when Claude changes version, tests that the accounts still open.
+
+  If something breaks, you get a notification near the clock. If the computer was off at a scheduled time, it runs as soon as it is back on.
+
+Without the scheduler, the check happens once a day when you open a shortcut.
+
+## 🧰 Management menu
+
+Start menu → **Claude Contas → Claude Contas (menu)**. It follows the Windows language (Portuguese or English).
+
+| Key | What it does |
+| --- | --- |
+| **A** | Open an account |
+| **E** | Sign in to an account, with the helper |
+| **N** | Add another account (up to 9 in total) |
+| **R** | Remove an account (asks before deleting its sign-in) |
+| **M** | Rename an account (the sign-in is kept) |
+| **H** | Scheduled update: turn on, change times, turn off, run now |
+| **I** | Icon style |
+| **D** | Diagnostics: app version, shortcuts, scheduler, who is signed in, duplicate accounts |
+| **T** | Test that the method works on the installed app version |
+| **C** | Fix shortcuts and icons |
+| **U** | Update the tool now |
+| **K** | Install the Claude Code skill |
+
+## 🔐 Why sign-in needs the helper
+
+With Google, email-link or SSO sign-in, the browser hands the session back to the app through a `claude://` link. Windows always delivers that link to the **main** Claude. So:
+
+- **Google**: the main Claude drops the code because it did not start that sign-in, and the new account never signs in.
+- **Email link**: the main window may end up signed in to the new account.
+
+The helper (**E** in the menu) does this:
+
+1. Closes the main Claude while you sign in.
+2. Catches the `claude://` link the browser sends back.
+3. Hands the link to the right account's window.
+4. Reopens the main Claude.
+
+That is why "starting over" never fixed version 1.
 
 ## 🧠 How it works
 
-The Claude desktop app is built on Electron, which accepts a `--user-data-dir` option. That option sets the folder where the app keeps its login, session and settings. Launch the app pointing at a different folder and it behaves like a separate installation, so **each folder holds one account**.
+Claude Desktop is an Electron app. The `--user-data-dir` option sets the folder where it keeps sign-in, session and settings. Each folder is one account, and the app treats each folder as a separate instance.
 
 ```mermaid
 flowchart LR
-    S1["Start menu: Claude"] --> D1[("Default data folder<br/>Account 1")]
-    S2["Desktop shortcut: Claude Work"] -->|"--user-data-dir"| D2[("Claude-Work folder<br/>Account 2")]
+    S1["Claude - Principal"] --> D1[("App default folder")]
+    S2["Claude - Work"] -->|"--user-data-dir"| D2[("ClaudeContas\Work")]
+    S3["Claude - Client"] -->|"--user-data-dir"| D3[("ClaudeContas\Client")]
 ```
 
-| Account | How to open it | Where the data lives |
-| --- | --- | --- |
-| Account 1 | Regular Claude from the Start menu | The app's default folder |
-| Account 2 | The **Claude Work** shortcut | `Claude-Work`, inside your user folder |
+Tested in November 2026 with Claude Desktop **6.28899.6** (MSIX), on Windows 11, with **4 accounts open at once**. The current app code:
 
-## 🙏 Credits
+- reads `--user-data-dir`;
+- keeps the chosen folder (internal label `stay_chosen_folder`);
+- holds one single-instance lock per folder.
 
-The original idea (tested on a Mac) was shared by [igorkas in a Reddit discussion](https://www.reddit.com/r/ClaudeAI/comments/1rkdigx/comment/oe0kazz/). This repository adapts the method to Windows with the MSIX version of the app.
+The `CLAUDE_USER_DATA_DIR` variable is ignored by signed builds, so it is not used here.
 
-## ✅ Requirements
+| What | Where |
+| --- | --- |
+| Tool, icons, config and log | `%LOCALAPPDATA%\ClaudeContas` |
+| Sign-in and data of each extra account | `%USERPROFILE%\ClaudeContas\<name>` (the v1 `Claude-Work` folder is reused) |
+| Scheduled task | Task Scheduler → `Claude Contas - Manutencao` |
 
-- Windows with the Claude desktop app already installed and working with account 1.
-- The sign-in details for account 2.
-- Permission to create files on your Desktop and in Documents.
+## 🤖 Claude Code skill
 
-This guide covers the Windows app installed as an **MSIX package**, which is what you get from the official download at claude.com/download and, as far as we know, from the Microsoft Store as well. To check whether it applies to you, follow step 1: if the path starts with `C:\Program Files\WindowsApps\`, this guide is for you.
+The installer offers the skill; you can also install it later from the menu → **K**. In Claude Code, type `/claude-contas`. It:
 
-## 🛠️ Step by step
-
-### Step 1: Find where the app is installed
-
-1. With Claude open, launch Task Manager (`Ctrl + Shift + Esc`).
-2. Expand the **Claude** group and right-click one of the processes **inside** it, not the group itself. If **Open file location** is still greyed out, use the **Details** tab, find `claude.exe`, and right-click that.
-3. In the window that opens, click the address bar and copy the full path. It looks like this:
-
-```text
-C:\Program Files\WindowsApps\Claude_<version>_x64__<code>\app
-```
-
-The version number and the code differ between machines and change with every update. Always use the path you see on your own computer.
-
-### Step 2: Quit Claude completely
-
-After copying the path, right-click the Claude icon in the system tray (near the clock) and choose **Quit/Exit**. Then check Task Manager to make sure no "Claude" process is left.
-
-### Step 3: Test it in PowerShell
-
-Open PowerShell and paste the command below. Replace the quoted part with the path from step 1, ending in `\claude.exe`:
-
-```powershell
-& "C:\Program Files\WindowsApps\Claude_<version>_x64__<code>\app\claude.exe" --user-data-dir="$env:USERPROFILE\Claude-Work"
-```
-
-If a Claude window opens asking you to sign in, it worked. The `Claude-Work` folder is created automatically inside your user folder.
-
-### Step 4: Sign in with the second account
-
-In the window that opened, sign in with account 2, then close the window. From now on that folder holds account 2, and you won't need to sign in again.
-
-### Step 5: Create the `.bat` file
-
-1. Copy [`scripts/claude-work.bat`](scripts/claude-work.bat) from this repository (or create one in Notepad with the same content) and fix the program path.
-2. If you create it in Notepad, use **File → Save as**, set the type to **All files**, and name it `Claude Work.bat`.
-3. Keep the file in a folder other than the Desktop, for example `Documents\Shortcuts`.
-4. Double-click it to test. Claude should open already signed in to account 2.
-
-### Step 6: Create the Desktop shortcut
-
-1. Right-click the `.bat` file and choose **Create shortcut**.
-2. Drag the shortcut to the Desktop and rename it **Claude Work** (`F2`), dropping the ".bat".
-3. Optional: in the shortcut's **Properties**, set **Run** to **Minimized** so the black console window doesn't flash. Use **Change Icon** to pick a different icon and tell the two accounts apart.
-4. Optional: **Pin to taskbar**.
-
-The `.bat` has to stay where it is, because the shortcut depends on it.
-
-## 🧪 Experimental: auto-detect script
-
-The biggest weakness of this method is that the version number is part of the path, so it changes whenever the app updates. [`scripts/launch-claude-work.ps1`](scripts/launch-claude-work.ps1) tries to find the install location automatically.
-
-> [!NOTE]
-> This script has **not been tested on every setup**. Try it before relying on it. If it doesn't work on your machine, use the regular `.bat`.
-
-To use it, open PowerShell in the script's folder and run:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\launch-claude-work.ps1
-```
-
-## 📅 Daily use
-
-- **Account 1:** open Claude from the Start menu as usual.
-- **Account 2:** open the **Claude Work** shortcut.
-- Both can stay open at the same time. The windows share the same icon, so check which account is which before typing anything sensitive.
-- History and settings are kept separate for each account.
-
-## 🍎 macOS
-
-The principle is the same. With Claude closed, run this in Terminal:
-
-```bash
-open -n -a "Claude" --args --user-data-dir="$HOME/Library/Application Support/Claude-Work"
-```
-
-Sign in with the second account, then close it. To avoid Terminal every time, you can wrap the command in an app made with Script Editor, as described in the [original discussion](https://www.reddit.com/r/ClaudeAI/comments/1rkdigx/comment/oe0kazz/). This part comes from the original idea and was not tested by this repository's author.
-
-## 🔀 Other alternatives
-
-| Option | Where it works | Upside | Watch out for |
-| --- | --- | --- | --- |
-| Browser profiles (Chrome, Edge, Brave) | claude.ai in the browser | Built into the browser, accounts open at the same time | Switching profiles is manual |
-| Account-switcher extensions | Chromium-based browsers | One-click switching | Third-party, and they handle login cookies: read the permissions and prefer open source |
-| App for one account, phone browser for the other | iOS and Android | Needs nothing extra | The phone app doesn't switch between different emails |
-
-Survey done in October 2026 via web search. The third-party tools were not tested here.
-
-## ⚠️ Limitations and cautions
-
-> [!IMPORTANT]
-> Each account keeps its own plan and limits. Check the usage rules for each plan before using this method at work.
-
-- **Not official.** It relies on an internal Electron option and may change with updates.
-- **Desktop app only.** Browser and phone need the alternatives above.
-- **Link-based sign-in.** For sign-ins that hand control back to the app through a browser link (such as the email link), the return may land on the wrong instance. If that happens, close the other Claude window before signing in. This was not tested.
-- **Account 2's session sits in an ordinary folder.** Anyone with access to your Windows user can reach that account. Use a screen lock and don't share the computer.
+1. Updates the tool.
+2. Runs diagnostics and the self-test.
+3. If the app changed, uses [`tools/investigar.ps1`](tools/investigar.ps1) to open the new version's code, find what changed and propose a fix.
 
 ## 🩺 Troubleshooting
 
-| Symptom | Likely cause | What to do |
-| --- | --- | --- |
-| The shortcut stopped working after an update | The path changed to a new version | Repeat step 1 and edit the `.bat`, swapping the version part. Your login stays saved |
-| "Open file location" is greyed out | You clicked the "Claude" group | Expand the group and click a process inside it, or use the Details tab |
-| Nothing happens, or "Access denied", in step 3 | Wrong path, or protected folder | Check the path you copied in step 1 and that it ends in `\claude.exe` |
-| **Claude Work** opens already on account 1 | The main instance was still running, or the option was ignored | Close every Claude window (tray and Task Manager) and open it again |
-| It asks you to sign in every time | The `Claude-Work` folder moved or was deleted | Make sure the `.bat` always uses the same `--user-data-dir` path |
-| A black window flashes on launch | Normal behavior of a `.bat` file | In the shortcut's Properties, set Run to Minimized |
+| Symptom | What to do |
+| --- | --- |
+| The extra account asks to sign in | Menu → **E**. Sessions expire from time to time |
+| I signed in and landed in the main account | Menu → **E**. The helper prevents this |
+| Diagnostics says "SAME account" | Menu → **E** and sign in with the other email |
+| The shortcut does nothing | Menu → **T** (Test). If it fails, **U** (Update). If it still fails, `/claude-contas` in Claude Code |
+| A notification near the clock says the accounts stopped | Claude changed something. Run `/claude-contas` in Claude Code or open an issue |
+| A shortcut is gone | Menu → **C** (Fix). The scheduler also brings it back |
+| "Running scripts is disabled on this system" | Use the install command exactly as above. It changes no Windows policy |
+| I still have `Claude Work.bat` from v1 | The installer offers to delete the old shortcut. The `Claude-Work` folder is reused |
+
+## ⚠️ Limitations
+
+- **Unofficial.** It relies on an Electron option that Anthropic may change. The self-test (**T**) and the scheduler tell you right away if it stops working.
+- **Desktop app only.** In the browser, use Chrome/Edge profiles.
+- **Taskbar:** open windows show the regular Claude icon. The colored badge is on the shortcuts. Check which account you are in before typing anything sensitive.
+- **Cowork, the Chrome extension and other features backed by Windows services or the browser** are shared by all instances and may clash between accounts (not tested in depth).
+- **Each account has its own plan and limits.** Check your plan's terms before using this at work.
+- **Security:** each account's sign-in lives in a folder of your Windows user. Anyone using your Windows user can use the accounts. The auto-update only downloads from this repository and checks the file before swapping it in. To turn it off, set `"autoAtualizar": false` in `%LOCALAPPDATA%\ClaudeContas\contas.json`.
 
 ## 🧹 Uninstall
 
-Delete the **Claude Work** shortcut, the `Claude Work.bat` file and the `Claude-Work` folder. Account 1 is not affected.
+1. Menu → **H** → turn off the scheduler.
+2. Menu → **R** for each account (choose whether to delete its folder).
+3. Delete `%LOCALAPPDATA%\ClaudeContas`, the **Claude - Principal** shortcut and the **Claude Contas** Start menu folder.
 
-## 🤝 Contributing
+The main account is not affected.
 
-Tested on another Windows version, on an ARM64 machine, or on an older standalone install? Found a fix? Open an issue or a pull request.
+## 🙏 Credits
+
+The original idea (on Mac) was shared by [igorkas on Reddit](https://www.reddit.com/r/ClaudeAI/comments/1rkdigx/comment/oe0kazz/). On macOS: `open -n -a "Claude" --args --user-data-dir="$HOME/Library/Application Support/Claude-Work"` (not tested here).
 
 ## 📄 License
 
-[MIT](LICENSE)
+[MIT](LICENSE) · [Changelog](CHANGELOG.md)
